@@ -4,6 +4,9 @@ import os
 import requests
 import json
 import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 
 ALPACA_KEY = os.getenv("APCA_API_KEY_ID")
 ALPACA_SECRET = os.getenv("APCA_API_SECRET_KEY")
