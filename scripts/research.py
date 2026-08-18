@@ -55,6 +55,21 @@ def get_positions():
     response = requests.get(url, headers=headers)
     return response.json()
 
+def get_orders(after=None, until=None, status="all", limit=100):
+    """Get orders, optionally filtered by a date window."""
+    headers = {
+        "APCA-API-KEY-ID": ALPACA_KEY,
+        "APCA-API-SECRET-KEY": ALPACA_SECRET,
+    }
+    url = f"{BASE_URL}/v2/orders"
+    params = {"status": status, "limit": limit}
+    if after:
+        params["after"] = after
+    if until:
+        params["until"] = until
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
 def get_news(symbol):
     """Get recent news for a symbol."""
     headers = {
@@ -81,5 +96,9 @@ if __name__ == "__main__":
         print(json.dumps(get_news(symbol)))
     elif action == "positions":
         print(json.dumps(get_positions()))
+    elif action == "orders":
+        after = sys.argv[2] if len(sys.argv) > 2 else None
+        until = sys.argv[3] if len(sys.argv) > 3 else None
+        print(json.dumps(get_orders(after=after, until=until)))
     else:
         print(json.dumps(get_account()))
