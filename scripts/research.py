@@ -70,6 +70,16 @@ def get_orders(after=None, until=None, status="all", limit=100):
     response = requests.get(url, headers=headers, params=params)
     return response.json()
 
+def get_quote(symbol):
+    """Get the latest quote (bid/ask) for a symbol."""
+    headers = {
+        "APCA-API-KEY-ID": ALPACA_KEY,
+        "APCA-API-SECRET-KEY": ALPACA_SECRET,
+    }
+    url = f"https://data.alpaca.markets/v2/stocks/{symbol}/quotes/latest"
+    response = requests.get(url, headers=headers)
+    return response.json()
+
 def get_news(symbol):
     """Get recent news for a symbol."""
     headers = {
@@ -92,6 +102,8 @@ if __name__ == "__main__":
     
     if action == "bars" and symbol:
         print(json.dumps(get_bars(symbol)))
+    elif action == "quote" and symbol:
+        print(json.dumps(get_quote(symbol)))
     elif action == "news" and symbol:
         print(json.dumps(get_news(symbol)))
     elif action == "positions":
