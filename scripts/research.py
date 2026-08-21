@@ -95,13 +95,30 @@ def get_news(symbol):
     response = requests.get(url, headers=headers, params=params)
     return response.json()
 
+def get_ma_summary(symbol):
+    """Compact 20d/50d moving-average summary for a symbol (avoids dumping full bar history)."""
+    d = get_bars(symbol)
+    closes = [b["c"] for b in d.get("bars", [])]
+    summary = {"symbol": symbol, "num_bars": len(closes)}
+    if closes:
+        summary["last_close"] = round(closes[-1], 4)
+    if len(closes) >= 20:
+        summary["ma20"] = round(sum(closes[-20:]) / 20, 4)
+    if len(closes) >= 50:
+        summary["ma50"] = round(sum(closes[-50:]) / 50, 4)
+    if "ma20" in summary and "ma50" in summary:
+        summary["signal"] = "bullish" if summary["ma20"] > summary["ma50"] else "bearish"
+    return summary
+
 if __name__ == "__main__":
     import sys
     action = sys.argv[1] if len(sys.argv) > 1 else "account"
     symbol = sys.argv[2] if len(sys.argv) > 2 else None
-    
+
     if action == "bars" and symbol:
         print(json.dumps(get_bars(symbol)))
+    elif action == "ma" and symbol:
+        print(json.dumps(get_ma_summary(symbol)))
     elif action == "quote" and symbol:
         print(json.dumps(get_quote(symbol)))
     elif action == "news" and symbol:
